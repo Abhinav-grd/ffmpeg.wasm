@@ -1,5 +1,4 @@
 /* eslint-disable no-undef */
-const resolveURL = require('resolve-url');
 const { log } = require('../utils/log');
 const { CREATE_FFMPEG_CORE_IS_NOT_DEFINED } = require('../utils/errors');
 
@@ -21,7 +20,7 @@ module.exports = async ({ corePath: _corePath }) => {
   if (typeof _corePath !== 'string') {
     throw Error('corePath should be a string!');
   }
-  const coreRemotePath = resolveURL(_corePath);
+  const coreRemotePath = _corePath;
   const corePath = await toBlobURL(coreRemotePath, 'application/javascript');
   const wasmPath = await toBlobURL(
     coreRemotePath.replace('ffmpeg-core.js', 'ffmpeg-core.wasm'),
