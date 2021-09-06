@@ -153,7 +153,7 @@ module.exports = (_options = {}) => {
       'info',
       `run FS.${method} ${args
         .map((arg) =>
-          typeof arg === 'string' ? arg : `<${arg.length} bytes binary file>`
+          typeof arg === 'string' ? arg : `<${arg.size} bytes binary file>`
         )
         .join(' ')}`
     );
@@ -164,6 +164,7 @@ module.exports = (_options = {}) => {
       try {
         ret = Core.FS[method](...args);
       } catch (e) {
+        log('error', e);
         if (method === 'readdir') {
           throw Error(
             `ffmpeg.FS('readdir', '${args[0]}') error. Check if the path exists, ex: ffmpeg.FS('readdir', '/')`
@@ -173,7 +174,9 @@ module.exports = (_options = {}) => {
             `ffmpeg.FS('readFile', '${args[0]}') error. Check if the path exists`
           );
         } else {
-          throw Error('Oops, something went wrong in FS operation.');
+          throw Error(
+            `Oops, something went wrong in FS operation ${e.message}`
+          );
         }
       }
       return ret;
