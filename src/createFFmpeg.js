@@ -162,7 +162,7 @@ module.exports = (_options = {}) => {
     } else {
       let ret = null;
       try {
-        console.log(Core.FS);
+        console.log(method, args);
         ret = Core.FS[method](...args);
       } catch (e) {
         log('error', e);
