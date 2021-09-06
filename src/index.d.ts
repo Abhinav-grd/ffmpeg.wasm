@@ -8,6 +8,7 @@ export const FS: {
     mountDir: string
   ) => void;
   unmount: (mountDir: string) => void;
+  mkdir: (path: string, mode?: number) => void;
 };
 
 type FIleSystemType = 'MEMFS' | 'NODEFS' | 'WORKERFS' | 'IDFS';
