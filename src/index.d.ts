@@ -2,7 +2,15 @@ export const FS: {
   writeFile: (fileName: string, binaryData: Uint8Array) => void;
   readFile: (fileName: string) => Uint8Array;
   unlink: (fileName: string) => void;
+  mount: (
+    type: FIleSystemType,
+    opts: Record<any, any>,
+    mountDir: string
+  ) => void;
+  unmount: (mountDir: string) => void;
 };
+
+type FIleSystemType = 'MEMFS' | 'NODEFS' | 'WORKERFS' | 'IDFS';
 
 type FSMethodNames = {
   [K in keyof typeof FS]: typeof FS[K] extends (...args: any[]) => any
