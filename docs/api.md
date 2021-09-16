@@ -31,7 +31,7 @@ createFFmpeg is a factory function that creates a ffmpeg instance.
 ```javascript
 const { createFFmpeg } = FFmpeg;
 const ffmpeg = createFFmpeg({
-  corePath: "./node_modules/@ffmpeg/core/dist/ffmpeg-core.js",
+  corePath: './node_modules/@ffmpeg/core/dist/ffmpeg-core.js',
   log: true,
 });
 ```
@@ -170,7 +170,6 @@ Progress handler to get current progress of ffmpeg command.
 **Examples:**
 
 ```javascript
-
 ffmpeg.setProgress(({ ratio }) => {
   console.log(ratio);
   /*
@@ -182,11 +181,11 @@ ffmpeg.setProgress(({ ratio }) => {
 <a name="fetch-file"></a>
 
 ### fetchFile(media): Promise
-   
+
 Helper function for fetching files from various resource.
 
 Sometimes the video/audio file you want to process may located in a remote URL and somewhere in your local file system.
-   
+
 This helper function helps you to fetch to file and return an Uint8Array variable for ffmpeg.wasm to consume.
 
 **Arguments**
@@ -197,7 +196,9 @@ This helper function helps you to fetch to file and return an Uint8Array variabl
 
 ```javascript
 (async () => {
-  const data = await fetchFile('https://github.com/ffmpegwasm/testdata/raw/master/video-3s.avi');
+  const data = await fetchFile(
+    'https://github.com/ffmpegwasm/testdata/raw/master/video-3s.avi'
+  );
   /*
    * data will be in Uint8Array format
    */

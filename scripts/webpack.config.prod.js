@@ -1,9 +1,7 @@
 const path = require('path');
 const common = require('./webpack.config.common');
 
-const genConfig = ({
-  entry, filename, library, libraryTarget,
-}) => ({
+const genConfig = ({ entry, filename, library, libraryTarget }) => ({
   ...common,
   mode: 'production',
   devtool: 'source-map',

@@ -1,17 +1,20 @@
 const resolveURL = require('resolve-url');
 
-const readFromBlobOrFile = (blob) => (
+const readFromBlobOrFile = (blob) =>
   new Promise((resolve, reject) => {
     const fileReader = new FileReader();
     fileReader.onload = () => {
       resolve(fileReader.result);
     };
-    fileReader.onerror = ({ target: { error: { code } } }) => {
+    fileReader.onerror = ({
+      target: {
+        error: { code },
+      },
+    }) => {
       reject(Error(`File could not be read! Code=${code}`));
     };
     fileReader.readAsArrayBuffer(blob);
-  })
-);
+  });
 
 module.exports = async (_data) => {
   let data = _data;
@@ -25,12 +28,12 @@ module.exports = async (_data) => {
       data = atob(_data.split(',')[1])
         .split('')
         .map((c) => c.charCodeAt(0));
-    /* From remote server/URL */
+      /* From remote server/URL */
     } else {
       const res = await fetch(resolveURL(_data));
       data = await res.arrayBuffer();
     }
-  /* From Blob or File */
+    /* From Blob or File */
   } else if (_data instanceof File || _data instanceof Blob) {
     data = await readFromBlobOrFile(_data);
   }

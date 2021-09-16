@@ -3,7 +3,7 @@ let ratio = 0;
 
 const ts2sec = (ts) => {
   const [h, m, s] = ts.split(':');
-  return (parseFloat(h) * 60 * 60) + (parseFloat(m) * 60) + parseFloat(s);
+  return parseFloat(h) * 60 * 60 + parseFloat(m) * 60 + parseFloat(s);
 };
 
 module.exports = (message, progress) => {

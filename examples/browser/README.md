@@ -1,5 +1,4 @@
-Browser Examples
-==================
+# Browser Examples
 
 To run this example, execute:
 

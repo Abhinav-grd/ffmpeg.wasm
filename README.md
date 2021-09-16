@@ -19,6 +19,7 @@
 ffmpeg.wasm is a pure Webassembly / Javascript port of FFmpeg. It enables video & audio record, convert and stream right inside browsers.
 
 **AVI to MP4 Demo**
+
 <p align="center">
   <a href="#">
     <img alt="transcode-demo" src="https://github.com/ffmpegwasm/ffmpeg.wasm/raw/master/docs/images/transcode.gif">
@@ -26,7 +27,6 @@ ffmpeg.wasm is a pure Webassembly / Javascript port of FFmpeg. It enables video 
 </p>
 
 Try it: [https://ffmpegwasm.netlify.app](https://ffmpegwasm.netlify.app#demo)
-
 
 ## Installation
 
@@ -171,7 +171,7 @@ If you have those files serving in other location, you can rewrite the default b
 ```javascript
 const { createFFmpeg } = FFmpeg;
 const ffmpeg = createFFmpeg({
-  corePath: "http://localhost:3000/public/ffmpeg-core.js",
+  corePath: 'http://localhost:3000/public/ffmpeg-core.js',
   // Use public address if you don't want to host your own.
   // corePath: 'https://unpkg.com/@ffmpeg/core@0.10.0/dist/ffmpeg-core.js'
   log: true,
