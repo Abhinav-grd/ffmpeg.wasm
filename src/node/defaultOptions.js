@@ -3,4 +3,5 @@
  */
 module.exports = {
   corePath: '@ffmpeg/core',
+  singleThread: false,
 };
