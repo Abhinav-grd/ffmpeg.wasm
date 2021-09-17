@@ -5,7 +5,9 @@ const parseArgs = require('./utils/parseArgs');
 const { defaultOptions, getCreateFFmpegCore } = require('./node');
 const { version } = require('../package.json');
 
-const NO_LOAD = Error('ffmpeg.wasm is not ready, make sure you have completed load().');
+const NO_LOAD = Error(
+  'ffmpeg.wasm is not ready, make sure you have completed load().'
+);
 
 module.exports = (_options = {}) => {
   const {
@@ -55,12 +57,8 @@ module.exports = (_options = {}) => {
        * In node environment, all paths are undefined as there
        * is no need to set them.
        */
-      const {
-        createFFmpegCore,
-        corePath,
-        workerPath,
-        wasmPath,
-      } = await getCreateFFmpegCore(options);
+      const { createFFmpegCore, corePath, wasmPath } =
+        await getCreateFFmpegCore(options);
       Core = await createFFmpegCore({
         /*
          * Assign mainScriptUrlOrBlob fixes chrome extension web worker issue
@@ -75,23 +73,24 @@ module.exports = (_options = {}) => {
          * as we are using blob URL instead of original URL to avoid cross origin issues.
          */
         locateFile: (path, prefix) => {
-          if (typeof window !== 'undefined') {
-            if (typeof wasmPath !== 'undefined'
-              && path.endsWith('ffmpeg-core.wasm')) {
-              return wasmPath;
-            }
-            if (typeof workerPath !== 'undefined'
-              && path.endsWith('ffmpeg-core.worker.js')) {
-              return workerPath;
-            }
+          if (
+            typeof wasmPath !== 'undefined' &&
+            path.endsWith('ffmpeg-core.wasm')
+          ) {
+            return wasmPath;
           }
           return prefix + path;
         },
       });
-      ffmpeg = Core.cwrap('proxy_main', 'number', ['number', 'number']);
+      ffmpeg = Core.cwrap(options.mainName || 'proxy_main', 'number', [
+        'number',
+        'number',
+      ]);
       log('info', 'ffmpeg-core loaded');
     } else {
-      throw Error('ffmpeg.wasm was loaded, you should not load it again, use ffmpeg.isLoaded() to check next time.');
+      throw Error(
+        'ffmpeg.wasm was loaded, you should not load it again, use ffmpeg.isLoaded() to check next time.'
+      );
     }
   };
 
@@ -150,20 +149,35 @@ module.exports = (_options = {}) => {
    *
    */
   const FS = (method, ...args) => {
-    log('info', `run FS.${method} ${args.map((arg) => (typeof arg === 'string' ? arg : `<${arg.length} bytes binary file>`)).join(' ')}`);
+    log(
+      'info',
+      `run FS.${method} ${args
+        .map((arg) =>
+          typeof arg === 'string' ? arg : `<${arg.size} bytes binary file>`
+        )
+        .join(' ')}`
+    );
     if (Core === null) {
       throw NO_LOAD;
     } else {
       let ret = null;
       try {
+        console.log(method, Core.FS.mount);
         ret = Core.FS[method](...args);
       } catch (e) {
+        log('error', e);
         if (method === 'readdir') {
-          throw Error(`ffmpeg.FS('readdir', '${args[0]}') error. Check if the path exists, ex: ffmpeg.FS('readdir', '/')`);
+          throw Error(
+            `ffmpeg.FS('readdir', '${args[0]}') error. Check if the path exists, ex: ffmpeg.FS('readdir', '/')`
+          );
         } else if (method === 'readFile') {
-          throw Error(`ffmpeg.FS('readFile', '${args[0]}') error. Check if the path exists`);
+          throw Error(
+            `ffmpeg.FS('readFile', '${args[0]}') error. Check if the path exists`
+          );
         } else {
-          throw Error('Oops, something went wrong in FS operation.');
+          throw Error(
+            `Oops, something went wrong in FS operation ${e.message}`
+          );
         }
       }
       return ret;
@@ -178,7 +192,11 @@ module.exports = (_options = {}) => {
       throw NO_LOAD;
     } else {
       running = false;
-      Core.exit(1);
+      try {
+        Core.exit(1);
+      } catch (e) {
+        console.log('catch core exit error', e);
+      }
       Core = null;
       ffmpeg = null;
       runResolve = null;
