@@ -177,11 +177,16 @@ module.exports = (_options = {}) => {
     if (Core === null) {
       throw NO_LOAD;
     } else {
-      running = false;
-      Core.exit(1);
-      Core = null;
-      ffmpeg = null;
-      runResolve = null;
+      try {
+        running = false;
+        Core.exit(1);
+      } catch (e) {
+        log(e.message);
+      } finally {
+        Core = null;
+        ffmpeg = null;
+        runResolve = null;
+      }
     }
   };
 
