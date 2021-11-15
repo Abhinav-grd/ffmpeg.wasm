@@ -26,8 +26,6 @@ module.exports = (_options = {}) => {
   const detectCompletion = (message) => {
     if (message === 'FFMPEG_END' && runResolve !== null) {
       runResolve();
-      runResolve = null;
-      running = false;
     }
   };
   const parseMessage = ({ type, message }) => {
@@ -75,7 +73,7 @@ module.exports = (_options = {}) => {
          * as we are using blob URL instead of original URL to avoid cross origin issues.
          */
         locateFile: (path, prefix) => {
-          if (typeof window !== 'undefined') {
+          if (typeof window !== 'undefined' || typeof WorkerGlobalScope !== 'undefined') {
             if (typeof wasmPath !== 'undefined'
               && path.endsWith('ffmpeg-core.wasm')) {
               return wasmPath;
@@ -88,7 +86,7 @@ module.exports = (_options = {}) => {
           return prefix + path;
         },
       });
-      ffmpeg = Core.cwrap('proxy_main', 'number', ['number', 'number']);
+      ffmpeg = Core.cwrap(options.singleThread ? 'main' : 'proxy_main', 'number', ['number', 'number']);
       log('info', 'ffmpeg-core loaded');
     } else {
       throw Error('ffmpeg.wasm was loaded, you should not load it again, use ffmpeg.isLoaded() to check next time.');
@@ -118,19 +116,27 @@ module.exports = (_options = {}) => {
    * ```
    *
    */
-  const run = (..._args) => {
-    log('info', `run ffmpeg command: ${_args.join(' ')}`);
-    if (Core === null) {
-      throw NO_LOAD;
-    } else if (running) {
-      throw Error('ffmpeg.wasm can only run one command at a time');
-    } else {
-      running = true;
-      return new Promise((resolve) => {
-        const args = [...defaultArgs, ..._args].filter((s) => s.length !== 0);
-        runResolve = resolve;
-        ffmpeg(...parseArgs(Core, args));
-      });
+  const run = async (..._args) => {
+    try {
+      log('info', `run ffmpeg command: ${_args.join(' ')}`);
+      if (Core === null) {
+        throw NO_LOAD;
+      } else if (running) {
+        throw Error('ffmpeg.wasm can only run one command at a time');
+      } else {
+        running = true;
+        return await new Promise((resolve) => {
+          const args = [...defaultArgs, ..._args].filter((s) => s.length !== 0);
+          runResolve = resolve;
+          ffmpeg(...parseArgs(Core, args));
+        });
+      }
+    } catch (e) {
+      console.trace(e);
+      throw e;
+    } finally {
+      runResolve = null;
+      running = false;
     }
   };
 
@@ -177,11 +183,16 @@ module.exports = (_options = {}) => {
     if (Core === null) {
       throw NO_LOAD;
     } else {
-      running = false;
-      Core.exit(1);
-      Core = null;
-      ffmpeg = null;
-      runResolve = null;
+      try {
+        running = false;
+        Core.exit(1);
+      } catch (e) {
+        log(e.message);
+      } finally {
+        Core = null;
+        ffmpeg = null;
+        runResolve = null;
+      }
     }
   };
 
