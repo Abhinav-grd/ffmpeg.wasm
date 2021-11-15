@@ -26,8 +26,6 @@ module.exports = (_options = {}) => {
   const detectCompletion = (message) => {
     if (message === 'FFMPEG_END' && runResolve !== null) {
       runResolve();
-      runResolve = null;
-      running = false;
     }
   };
   const parseMessage = ({ type, message }) => {
@@ -118,19 +116,24 @@ module.exports = (_options = {}) => {
    * ```
    *
    */
-  const run = (..._args) => {
-    log('info', `run ffmpeg command: ${_args.join(' ')}`);
-    if (Core === null) {
-      throw NO_LOAD;
-    } else if (running) {
-      throw Error('ffmpeg.wasm can only run one command at a time');
-    } else {
-      running = true;
-      return new Promise((resolve) => {
-        const args = [...defaultArgs, ..._args].filter((s) => s.length !== 0);
-        runResolve = resolve;
-        ffmpeg(...parseArgs(Core, args));
-      });
+  const run = async (..._args) => {
+    try {
+      log('info', `run ffmpeg command: ${_args.join(' ')}`);
+      if (Core === null) {
+        throw NO_LOAD;
+      } else if (running) {
+        throw Error('ffmpeg.wasm can only run one command at a time');
+      } else {
+        running = true;
+        return await new Promise((resolve) => {
+          const args = [...defaultArgs, ..._args].filter((s) => s.length !== 0);
+          runResolve = resolve;
+          ffmpeg(...parseArgs(Core, args));
+        });
+      }
+    } finally {
+      runResolve = null;
+      running = false;
     }
   };
 
