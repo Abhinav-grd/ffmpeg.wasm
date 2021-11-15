@@ -131,6 +131,9 @@ module.exports = (_options = {}) => {
           ffmpeg(...parseArgs(Core, args));
         });
       }
+    } catch (e) {
+      console.trace(e);
+      throw e;
     } finally {
       runResolve = null;
       running = false;
